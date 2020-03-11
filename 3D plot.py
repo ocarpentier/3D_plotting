@@ -4,3 +4,6 @@ import matplotlib.pyplot as plt
 
 
 class plotter:
+    def __init__(self,data):
+        self.data = data
+
