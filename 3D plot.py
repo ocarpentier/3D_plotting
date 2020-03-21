@@ -1,15 +1,10 @@
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
-# from mayavi.mlab import *
-#
-# class plotter:
-#     def __init__(self,data):
-#         self.data = data
+
 
 x = np.linspace(0,10,10)
 y = np.linspace(0,10,10)
+x = np.sin(x)
 z = np.linspace(0,10,10)
 u = np.sin(x)
 v = np.cos(x)
@@ -21,7 +16,8 @@ print(matrix)
 
 class plotter:
     """
-    input is a numpay array/matrix
+    input:  a numpay array/matrix
+    output: a 2 dimensional plot in a self chosen plane of the airflow
     """
 
     def vectorplanex(self, x):
@@ -179,5 +175,8 @@ class plotter:
         #-----------------------------------------
 
 
+        ## !!!THOUGHT!!! ==> plotting the velocity field in three dimensions but only on the surface of tthe sphere
+
 plotter.streamsplaney(matrix,1.111)
+
 

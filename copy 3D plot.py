@@ -45,3 +45,10 @@ class plotter:
 
 matrix.plotter
 matrix.plotplane(0)
+
+
+
+
+###---------------------------------------------------------------------
+# copy erda 4c
+
