@@ -137,6 +137,7 @@ class plotter:
         plt.title(self.title, fontsize=self.fontsize,**csfont)
         plt.xlabel(self.xtitle, fontsize=self.fontsize,**csfont)
         plt.ylabel(self.ytitle, fontsize=self.fontsize,**csfont)
+        plt.grid(self.grid)
 
         # remove ticks on axes if requested
         if not self.ticks:
@@ -212,7 +213,7 @@ class plotter:
         plt.title(self.title, fontsize=self.fontsize, **csfont)
         plt.xlabel(self.xtitle, fontsize=self.fontsize, **csfont)
         plt.ylabel(self.ytitle, fontsize=self.fontsize, **csfont)
-
+        plt.grid(self.grid)
         # remove ticks on axes if requested
         if not self.ticks:
             ax1.xaxis.set_ticks([])  # removes bars on x-axis
@@ -288,7 +289,7 @@ class plotter:
         plt.title(self.title, fontsize=self.fontsize, **csfont)
         plt.xlabel(self.xtitle, fontsize=self.fontsize, **csfont)
         plt.ylabel(self.ytitle, fontsize=self.fontsize, **csfont)
-
+        plt.grid(self.grid)
         # remove ticks on axes if requested
         if not self.ticks:
             ax1.xaxis.set_ticks([])  # removes bars on x-axis
@@ -301,7 +302,7 @@ class plotter:
         ## !!!THOUGHT!!! ==> plotting the velocity field in three dimensions but only on the surface of tthe sphere
 
 
-matrix = plotter(matrix,'Hello its meeeee','its a mee mario','jipse, zupt zee, pptse',colormp='gist_ncar',grid=True,fontsize=11,font='Ariel Black',couleur=True)
+matrix = plotter(matrix,'Hello its meeeee','its a mee mario','jipse, zupt zee, pptse',colormp='gist_ncar',grid=False,fontsize=11,font='Ariel Black',couleur=True)
 matrix.planeinterval = 6
 matrix.streamsplaneyz(5,density=2)
 # matrix.vectorplanexz(5)
