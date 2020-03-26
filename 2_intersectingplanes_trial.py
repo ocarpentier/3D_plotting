@@ -1,12 +1,14 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib import rc
+from mpl_toolkits.mplot3d import axes3d
 
 
-x = np.linspace(0,10,50)
-y = np.linspace(0,10,50)
+x = np.linspace(0,10,100)
+y = np.linspace(0,10,100)
 x = np.sin(x)
-z = np.linspace(0,10,50)
+z = np.linspace(0,10,100)
 u = np.sin(x)
 v = np.cos(x)
 w = np.sin(x)
@@ -21,8 +23,8 @@ class plotter:
     :param  title:      title (string)
     :param  xtitle:     title for the x-axis (string)
     :param  ytitle:     title for the y-axis (string)
-    :arg    font:       change font of all three titles
-    :arg:   colormp:    (see:https://matplotlib.org/3.1.1/tutorials/colors/colormaps.html)which colors to choose from
+    :arg    font:       change font of all three titles(see:http://jonathansoma.com/lede/data-studio/matplotlib/list-all-fonts-available-in-matplotlib-plus-samples/)
+    :arg:   colormp:    which colors to choose from (see:https://matplotlib.org/3.1.1/tutorials/colors/colormaps.html)
     :arg:   grid:       add grid or not to two dimensional plots
     :arg:   fontsize:   how big the titles must be
     :arg:   couleur:    If true there is color otherwise its uniform colored
@@ -33,7 +35,7 @@ class plotter:
     #set a class variable this can be changed from outside the class
     planeinterval = 0.1
 
-    def __init__(self,data,title,xtitle,ytitle,font=None, colormp=None,grid=None,fontsize=None,couleur=None,ticks=None):
+    def __init__(self,data,title,xtitle,ytitle,font=None, colormp=None,grid=None,fontsize=None,couleur=None,ticks=None,fontweight=None):
         ## the required arguments
         self.data = data
         self.title = title
@@ -67,6 +69,10 @@ class plotter:
             self.ticks = True
         else:
             self.ticks = ticks
+        if fontweight is None:
+            self.fontweight = 'normal'
+        else:
+            self.fontweight = fontweight
 
 
 
@@ -83,8 +89,10 @@ class plotter:
         # U,V = (data[:, 4], data[:, 5])
 
         #add different font
-        csfont = {'fontname': self.font}
-
+        font = {'family': self.font,
+                'weight': self.fontweight
+                "size"  : self.fontsize}
+        rc('font',)
         ##plot data
         fig1, ax1 = plt.subplots()                                  ## make the figure
         ax1.set_title(self.title,fontsize=self.fontsize,**csfont)       ## add title
@@ -299,27 +307,28 @@ class plotter:
 
         plt.show()
         #-----------------------------------------
-    def intersectingplanes(self, x, y):
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+    def intersectingplanes(self,x,y):
+        fig  = plt.figure()
+        ax = fig.add_subplot(111,projection='3d')
         data1 = self.data[(self.data[:, 0] < x + self.planeinterval) & (self.data[:, 0] > x - self.planeinterval)]
         data2 = self.data[(self.data[:, 1] < y + self.planeinterval) & (self.data[:, 1] > y - self.planeinterval)]
 
-        x1 = np.ones((1, len(data1[:, 3]))) * x
-        X1, Y1 = np.meshgrid(x1, data1[:, 1])
-        Z1, Y1 = np.meshgrid(data1[:, 2], data1[:, 1])
-        v1, w1 = np.meshgrid(data1[:, 4], data1[:, 5])
-        V1 = np.hypot(v1, w1)
+
+        x1 = np.ones((1,len(data1[:,3])))*x
+        X1,Y1= np.meshgrid(x1,data1[:,1])
+        Z1,Y1 = np.meshgrid(data1[:,2],data1[:,1])
+        v1,w1 = np.meshgrid(data1[:,4],data1[:,5])
+        V1 = np.hypot(v1,w1)
         norm = mpl.colors.Normalize(vmin=0, vmax=1)
 
         x2 = list(data2[:, 0])
-        z2 = list(data2[:, 2])
-        u2 = list(data2[:, 3])
+        z2 = list(data2[:,2])
+        u2 = list(data2[:,3])
         w2 = list(data2[:, 5])
         deleting = True
         i = 0
         while deleting:
-            if x2[i] > x:
+            if x2[i]>x:
                 x2.pop(i)
                 z2.pop(i)
                 u2.pop(i)
@@ -332,7 +341,7 @@ class plotter:
         y2 = np.ones((1, len(x2))) * y
         X2, Y2 = np.meshgrid(x2, y2)
         Z2, X2 = np.meshgrid(z2, x2)
-        U2, W2 = np.meshgrid(u2, w2)
+        U2, W2 = np.meshgrid(u2,w2)
         V2 = np.hypot(U2, W2)
 
         x3 = list(data2[:, 0])
@@ -358,22 +367,21 @@ class plotter:
         U3, W3 = np.meshgrid(u3, w3)
         V3 = np.hypot(U3, W3)
         norm = mpl.colors.Normalize(vmin=0, vmax=1)
-        ax.plot_surface(X1, Y1, Z1, facecolors=plt.cm.gist_rainbow(norm(V1)), shade=False)
+        ax.plot_surface(X1, Y1, Z1,facecolors=plt.cm.gist_rainbow(norm(V1)),shade=False)
         ax.plot_surface(X2, Y2, Z2, facecolors=plt.cm.gist_rainbow(norm(V2)), shade=False)
         ax.plot_surface(X3, Y3, Z3, facecolors=plt.cm.gist_rainbow(norm(V3)), shade=False)
-        m = mpl.cm.ScalarMappable(cmap='gist_rainbow', norm=norm)
+        m = mpl.cm.ScalarMappable(cmap='gist_rainbow',norm=norm)
         m.set_array([])
         fig.colorbar(m)
         plt.show()
 
-    ## !!!THOUGHT!!! ==> plotting the velocity field in three dimensions but only on the surface of tthe sphere
 
 
-matrix = plotter(matrix,'Hello its meeeee','its a mee mario','jipse, zupt zee, pptse',colormp='gist_ncar',fontsize=11,font='Comic Sans MS',couleur=True)
-matrix.planeinterval = 6
+
+        ## !!!THOUGHT!!! ==> plotting the velocity field in three dimensions but only on the surface of tthe sphere
+
+matrix = plotter(matrix, 'Hello its meeeee', 'its a mee mario', 'jipse, zupt zee, pptse', colormp='gist_ncar',
+                 fontsize=11, font='Comic Sans MS', couleur=True)
+matrix.planeinterval = 10
 # matrix.streamsplaneyz(5,density=2)
-# matrix.vectorplanexz(5)
-# matrix.vectorplanexy(5)
-# matrix.vectorplaneyz(5)
-matrix.streamsplanexz(5,density=2)
-matrix.streamsplanexy(5,density=2)
+matrix.intersectingplanes(0,5)

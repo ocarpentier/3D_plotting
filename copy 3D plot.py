@@ -23,7 +23,7 @@ class plotter:
     planeinterval = 0.1
 
     def __init__(self, font=None, colormp=None):
-
+        pass
     def vectorplanex(self, x):
         # choose an interval which is projected on chosen y coordinata
         interval = 10.01
@@ -184,4 +184,9 @@ class plotter:
         ## !!!THOUGHT!!! ==> plotting the velocity field in three dimensions but only on the surface of tthe sphere
 
 
-plotter.streamsplaney(matrix, 1.111)
+# plotter.streamsplaney(matrix, 1.111)
+lst = [1,2,3,4,3,4,5,6,7,8,9]
+for i in range(3):
+    if lst[i]==3:
+        lst.pop(i)
+print(lst)
