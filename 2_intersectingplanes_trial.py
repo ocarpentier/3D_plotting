@@ -1,14 +1,15 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import rc
-from mpl_toolkits.mplot3d import axes3d
 
 
-x = np.linspace(0,10,100)
-y = np.linspace(0,10,100)
+
+x = np.linspace(0,10,25)
+y = np.linspace(0,10,25)
 x = np.sin(x)
-z = np.linspace(0,10,100)
+z = np.linspace(0,10,25)
 u = np.sin(x)
 v = np.cos(x)
 w = np.sin(x)
@@ -69,13 +70,6 @@ class plotter:
             self.ticks = True
         else:
             self.ticks = ticks
-        if fontweight is None:
-            self.fontweight = 'normal'
-        else:
-            self.fontweight = fontweight
-
-
-
 
     def vectorplaneyz(self, x):
         # select points for certain x +- the chosen interval
@@ -88,31 +82,29 @@ class plotter:
         # X,Y = (data[:, 1], data[:, 2])
         # U,V = (data[:, 4], data[:, 5])
 
-        #add different font
-        font = {'family': self.font,
-                'weight': self.fontweight
-                "size"  : self.fontsize}
-        rc('font',)
+        # add different font
+        csfont = {'fontname': self.font}
+
         ##plot data
-        fig1, ax1 = plt.subplots()                                  ## make the figure
-        ax1.set_title(self.title,fontsize=self.fontsize,**csfont)       ## add title
-        plt.xlabel(self.xtitle,fontsize=self.fontsize,**csfont)     ## add title x-axis
-        plt.ylabel(self.ytitle,fontsize=self.fontsize,**csfont)     ## add title y-axis
-        plt.grid(self.grid)                                         ## if requested add grid
+        fig1, ax1 = plt.subplots()  ## make the figure
+        ax1.set_title(self.title, fontsize=self.fontsize, **csfont)  ## add title
+        plt.xlabel(self.xtitle, fontsize=self.fontsize, **csfont)  ## add title x-axis
+        plt.ylabel(self.ytitle, fontsize=self.fontsize, **csfont)  ## add title y-axis
+        plt.grid(self.grid)  ## if requested add grid
 
         # if requested add colour and yes its french colour values is based on speed
         if self.couleur:
             color = np.hypot(U, V)
-            ax1.quiver(X, Y, U, V, color, cmap=self.colormp, alpha=1)   #actual plotting
+            ax1.quiver(X, Y, U, V, color, cmap=self.colormp, alpha=1)  # actual plotting
         else:
-            ax1.quiver(X, Y, U, V,alpha=1)                              #actual plotting
+            ax1.quiver(X, Y, U, V, alpha=1)  # actual plotting
 
-        #remove ticks on axes if requested
+        # remove ticks on axes if requested
         if not self.ticks:
-            ax1.xaxis.set_ticks([])         #removes bars on x-axis
-            ax1.yaxis.set_ticks([])         # removes bars on y-axis
-        plt.show()
+            ax1.xaxis.set_ticks([])  # removes bars on x-axis
+            ax1.yaxis.set_ticks([])  # removes bars on y-axis
 
+        plt.show()
     # ------------------------------------------------------------------------------
     def streamsplaneyz(self, x,density=None):
 
@@ -366,22 +358,69 @@ class plotter:
         Z3, X3 = np.meshgrid(z3, x3)
         U3, W3 = np.meshgrid(u3, w3)
         V3 = np.hypot(U3, W3)
-        norm = mpl.colors.Normalize(vmin=0, vmax=1)
-        ax.plot_surface(X1, Y1, Z1,facecolors=plt.cm.gist_rainbow(norm(V1)),shade=False)
-        ax.plot_surface(X2, Y2, Z2, facecolors=plt.cm.gist_rainbow(norm(V2)), shade=False)
-        ax.plot_surface(X3, Y3, Z3, facecolors=plt.cm.gist_rainbow(norm(V3)), shade=False)
-        m = mpl.cm.ScalarMappable(cmap='gist_rainbow',norm=norm)
+        a = max(np.amax(V3),np.amax(V2),np.amax(V1))
+        b = min(np.amin(V3),np.amin(V2),np.amin(V1))
+
+
+        norm = mpl.colors.Normalize(vmin=b, vmax=a)
+        csfont = {'fontname': self.font}
+        plt.title(self.title, fontsize=self.fontsize, **csfont)
+        plt.xlabel(self.xtitle, fontsize=self.fontsize, **csfont)
+        plt.ylabel(self.ytitle, fontsize=self.fontsize, **csfont)
+        ax.plot_surface(X1, Y1, Z1,facecolors=plt.cm.hsv(norm(V1)),shade=False)
+        ax.plot_surface(X2, Y2, Z2, facecolors=plt.cm.hsv(norm(V2)), shade=False)
+        ax.plot_surface(X3, Y3, Z3, facecolors=plt.cm.hsv(norm(V3)), shade=False)
+        m = mpl.cm.ScalarMappable(cmap='hsv',norm=norm)
         m.set_array([])
         fig.colorbar(m)
         plt.show()
 
+    def sphere_plane(self, x,colorsphere=None):
+        if colorsphere is None:
+            colorsphere = 'b'
+        else:
+            colorsphere = colorsphere
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        data1 = self.data[(self.data[:, 0] < x + self.planeinterval) & (self.data[:, 0] > x - self.planeinterval)]
 
+        x1 = np.ones((1, len(data1[:, 3]))) * x
+        X1, Y1 = np.meshgrid(x1, data1[:, 1])
+        Z1, Y1 = np.meshgrid(data1[:, 2], data1[:, 1])
+        v1, w1 = np.meshgrid(data1[:, 4], data1[:, 5])
+        V1 = np.hypot(v1, w1)
+        norm = mpl.colors.Normalize(vmin=0, vmax=1)
 
+        r = 3         #radius [cm]
+        u, v = np.mgrid[0:2 * np.pi:20j, 0:np.pi:10j]
+        x2 = np.cos(u) * np.sin(v)
+        y2 = np.sin(u) * np.sin(v)
+        z2 = np.cos(v)
+
+        X2,Y2,Z2 = x2,y2,z2
+
+        # X2,Y2 = np.meshgrid(x2,y2)
+        # X2,Z2 = np.meshgrid(x2,z2)
+
+        norm = mpl.colors.Normalize(vmin=0, vmax=1)
+        csfont = {'fontname': self.font}
+        plt.title(self.title, fontsize=self.fontsize, **csfont)
+        plt.xlabel(self.xtitle, fontsize=self.fontsize, **csfont)
+        plt.ylabel(self.ytitle, fontsize=self.fontsize, **csfont)
+        ax.plot_surface(X1, Y1, Z1, facecolors=plt.cm.gist_rainbow(norm(V1)), shade=False)
+        ax.plot_surface(X2, Y2, Z2,color=colorsphere, shade=False)
+
+        m = mpl.cm.ScalarMappable(cmap='gist_rainbow', norm=norm)
+        m.set_array([])
+        fig.colorbar(m)
+        plt.show()
 
         ## !!!THOUGHT!!! ==> plotting the velocity field in three dimensions but only on the surface of tthe sphere
 
 matrix = plotter(matrix, 'Hello its meeeee', 'its a mee mario', 'jipse, zupt zee, pptse', colormp='gist_ncar',
-                 fontsize=11, font='Comic Sans MS', couleur=True)
-matrix.planeinterval = 10
+                 fontsize=13, font='Ariel',fontweight='bold', couleur=True)
+matrix.planeinterval = 10.1
 # matrix.streamsplaneyz(5,density=2)
-matrix.intersectingplanes(0,5)
+# matrix.vectorplaneyz(5)
+# matrix.intersectingplanes(0,5)
+matrix.sphere_plane(5,colorsphere='cyan')
