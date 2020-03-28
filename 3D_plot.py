@@ -409,11 +409,19 @@ class plotter:
     ## !!!THOUGHT!!! ==> plotting the velocity field in three dimensions but only on the surface of tthe sphere
 
 
-matrix = plotter(matrix,'Hello its meeeee','its a mee mario','jipse, zupt zee, pptse',colormp='gist_ncar',fontsize=11,font='Comic Sans MS',couleur=True)
-matrix.planeinterval = 6
-# matrix.streamsplaneyz(5,density=2)
-# matrix.vectorplanexz(5)
-# matrix.vectorplanexy(5)
-# matrix.vectorplaneyz(5)
-matrix.streamsplanexz(5,density=2)
-matrix.streamsplanexy(5,density=2)
+
+"""
+first set a new variable name equal to the class with as first argument the dataset. This should be a 
+numpy array with six columns with no strings in it(first entry= x-location, second y-loc,third z,
+ fourth u,fifth v and sixth w). Then you call  "variable" + "." + "plotting function".
+ 
+ I have produced some random test data for you guys this needed a meshing 
+ function perhaps for the real data this is not necessary and could create some strange results in this 
+ case  just tell me its a quick fix. i'll give some examples of the function and brief explanation below perhaps  
+"""
+fig = plotter(matrix,'Hello its meeeee','its a mee mario','jipse, zupt zee, pptse',colormp='gist_ncar',fontsize=11,font='Comic Sans MS',couleur=True)
+fig.planeinterval = 6
+
+fig.vectorplanexz(5)
+fig.streamsplanexz(5,density=3)
+fig.streamsplanexy(5,density=0.5)
