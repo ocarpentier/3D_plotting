@@ -443,14 +443,14 @@ fig2 = plotter(matrix,'Test Title','x-axis','y-axis',colormp='hsv',fontsize=15,f
 fig1.planeinterval = 6                    # Most likely there wont be many points having exactly the same value hence all the points lying in the interval will be projected on the plane this is how its adjusted
 fig2.planeinterval = 6                    # same
 
-# fig1.vectorplanexz(5)                   # does not look good for a lot of datapoints
-# fig1.streamsplanexz(5,density=3)        # density is an optional argument
-# fig1.streamsplanexy(5,density=0.5)      # you can choose the plane your in
-# fig1.intersectingplanes(5,5)            # here i didn't find a way to adapt the color scheme of the heat map with a variable for this you need to enter the class and change it manually or aske me :). this plot looks wrong but i think ith the acquired data it wont be a problem
-# fig1.sphere_plane(x=5,xs=2,ys=3,zs=4,r=6,colorsphere='c')    # you can choose the color of your sphere this is also optional. It doesnt look like a sphere but  ithink it is due to the proportions of the axes and it'll probably resolve itself
-#
-# fig2.vectorplanexz(5)
-# fig2.streamsplanexz(5)
-# fig2.streamsplanexy(5,density=0.5)
+fig1.vectorplanexz(5)                   # does not look good for a lot of datapoints
+fig1.streamsplanexz(5,density=3)        # density is an optional argument
+fig1.streamsplanexy(5,density=0.5)      # you can choose the plane your in
+fig1.intersectingplanes(5,5)            # here i didn't find a way to adapt the color scheme of the heat map with a variable for this you need to enter the class and change it manually or aske me :). this plot looks wrong but i think ith the acquired data it wont be a problem
+fig1.sphere_plane(x=5,xs=2,ys=3,zs=4,r=6,colorsphere='c')    # you can choose the color of your sphere this is also optional. It doesnt look like a sphere but  ithink it is due to the proportions of the axes and it'll probably resolve itself
+
+fig2.vectorplanexz(5)
+fig2.streamsplanexz(5)
+fig2.streamsplanexy(5,density=0.5)
 fig2.intersectingplanes(0,5)
-# fig2.sphere_plane(x=5,xs=2,ys=3,zs=-1,r=2,colorsphere='black')
+fig2.sphere_plane(x=5,xs=2,ys=3,zs=-1,r=2,colorsphere='black')
