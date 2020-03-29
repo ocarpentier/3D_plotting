@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import rc
 
 
 x = np.linspace(0,10,50)
@@ -310,7 +312,7 @@ class plotter:
         Z1, Y1 = np.meshgrid(data1[:, 2], data1[:, 1])
         v1, w1 = np.meshgrid(data1[:, 4], data1[:, 5])
         V1 = np.hypot(v1, w1)
-        norm = mpl.colors.Normalize(vmin=0, vmax=1)
+
 
         x2 = list(data2[:, 0])
         z2 = list(data2[:, 2])
@@ -318,13 +320,14 @@ class plotter:
         w2 = list(data2[:, 5])
         deleting = True
         i = 0
+        passing = False
         while deleting:
             if x2[i] > x:
                 x2.pop(i)
                 z2.pop(i)
                 u2.pop(i)
                 w2.pop(i)
-
+                passing = True
             else:
                 i += 1
             if i == len(x2):
@@ -341,7 +344,8 @@ class plotter:
         w3 = list(data2[:, 5])
         deleting = True
         i = 0
-        while deleting:
+        while deleting and passing:
+            print('check')
             if x3[i] <= x:
                 x3.pop(i)
                 z3.pop(i)
@@ -352,21 +356,28 @@ class plotter:
                 i += 1
             if i == len(x3):
                 deleting = False
-        y3 = np.ones((1, len(x3))) * y
-        X3, Y3 = np.meshgrid(x3, y3)
-        Z3, X3 = np.meshgrid(z3, x3)
-        U3, W3 = np.meshgrid(u3, w3)
-        V3 = np.hypot(U3, W3)
-        norm = mpl.colors.Normalize(vmin=0, vmax=1)
+        if passing:
+            y3 = np.ones((1, len(x3))) * y
+            X3, Y3 = np.meshgrid(x3, y3)
+            Z3, X3 = np.meshgrid(z3, x3)
+            U3, W3 = np.meshgrid(u3, w3)
+            V3 = np.hypot(U3, W3)
+            a = max(np.amax(V3), np.amax(V2), np.amax(V1))
+            b = min(np.amin(V3), np.amin(V2), np.amin(V1))
+        else:
+            a = max( np.amax(V2), np.amax(V1))
+            b = min(np.amin(V2), np.amin(V1))
+        norm = mpl.colors.Normalize(vmin=b, vmax=a)
         ax.plot_surface(X1, Y1, Z1, facecolors=plt.cm.gist_rainbow(norm(V1)), shade=False)
         ax.plot_surface(X2, Y2, Z2, facecolors=plt.cm.gist_rainbow(norm(V2)), shade=False)
-        ax.plot_surface(X3, Y3, Z3, facecolors=plt.cm.gist_rainbow(norm(V3)), shade=False)
+        if passing:
+         ax.plot_surface(X3, Y3, Z3, facecolors=plt.cm.gist_rainbow(norm(V3)), shade=False)
         m = mpl.cm.ScalarMappable(cmap='gist_rainbow', norm=norm)
         m.set_array([])
         fig.colorbar(m)
         plt.show()
 
-    def sphere_plane(self, x, colorsphere=None):
+    def sphere_plane(self, x,xs,ys,zs,r, colorsphere=None):
         if colorsphere is None:
             colorsphere = 'b'
         else:
@@ -382,16 +393,17 @@ class plotter:
         V1 = np.hypot(v1, w1)
         norm = mpl.colors.Normalize(vmin=0, vmax=1)
 
-        r = 3  # radius [cm]
+
         u, v = np.mgrid[0:2 * np.pi:20j, 0:np.pi:10j]
-        x2 = np.cos(u) * np.sin(v)
-        y2 = np.sin(u) * np.sin(v)
-        z2 = np.cos(v)
+        x2 = r*np.cos(u) * np.sin(v)
+        y2 = r*np.sin(u) * np.sin(v)
+        z2 = r*np.cos(v)
+        x2 += xs
+        y2 += ys
+        z2 += zs
 
         X2, Y2, Z2 = x2, y2, z2
 
-        # X2,Y2 = np.meshgrid(x2,y2)
-        # X2,Z2 = np.meshgrid(x2,z2)
 
         norm = mpl.colors.Normalize(vmin=0, vmax=1)
         csfont = {'fontname': self.font}
@@ -417,11 +429,28 @@ numpy array with six columns with no strings in it(first entry= x-location, seco
  
  I have produced some random test data for you guys this needed a meshing 
  function perhaps for the real data this is not necessary and could create some strange results in this 
- case  just tell me its a quick fix. i'll give some examples of the function and brief explanation below perhaps  
+ case  just tell me its a quick fix. i'll give some examples of the function and 
+ brief explanation below you could import this file like you do with numpy or copy paste it but do not
+  write in this file so everyone can keep using it easily.  
+  
+  the dataset and 3 titles are obligatory to fill in the rest are optional arguments
+  
+  if you'd like other plotting methods or change certain things you can always ask me(= Oscar).
 """
-fig = plotter(matrix,'Hello its meeeee','its a mee mario','jipse, zupt zee, pptse',colormp='gist_ncar',fontsize=11,font='Comic Sans MS',couleur=True)
-fig.planeinterval = 6
 
-fig.vectorplanexz(5)
-fig.streamsplanexz(5,density=3)
-fig.streamsplanexy(5,density=0.5)
+fig1 = plotter(matrix,'Test Title','x-axis','y-axis',colormp='gist_ncar',fontsize=11,font='Comic Sans MS',couleur=True,grid=None,ticks=None)
+fig2 = plotter(matrix,'Test Title','x-axis','y-axis',colormp='hsv',fontsize=15,font=None,couleur=False,grid=True,ticks=True)
+fig1.planeinterval = 6                    # Most likely there wont be many points having exactly the same value hence all the points lying in the interval will be projected on the plane this is how its adjusted
+fig2.planeinterval = 6                    # same
+
+# fig1.vectorplanexz(5)                   # does not look good for a lot of datapoints
+# fig1.streamsplanexz(5,density=3)        # density is an optional argument
+# fig1.streamsplanexy(5,density=0.5)      # you can choose the plane your in
+# fig1.intersectingplanes(5,5)            # here i didn't find a way to adapt the color scheme of the heat map with a variable for this you need to enter the class and change it manually or aske me :). this plot looks wrong but i think ith the acquired data it wont be a problem
+# fig1.sphere_plane(x=5,xs=2,ys=3,zs=4,r=6,colorsphere='c')    # you can choose the color of your sphere this is also optional. It doesnt look like a sphere but  ithink it is due to the proportions of the axes and it'll probably resolve itself
+#
+# fig2.vectorplanexz(5)
+# fig2.streamsplanexz(5)
+# fig2.streamsplanexy(5,density=0.5)
+fig2.intersectingplanes(0,5)
+# fig2.sphere_plane(x=5,xs=2,ys=3,zs=-1,r=2,colorsphere='black')

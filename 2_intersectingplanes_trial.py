@@ -414,6 +414,99 @@ class plotter:
         m.set_array([])
         fig.colorbar(m)
         plt.show()
+    def twoplanes_Sphere(self,x,y,xs,ys,zs,r,colorsphere=None):
+        if colorsphere is None:
+            colorsphere = 'b'
+        else:
+            colorsphere = colorsphere
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111,projection='3d')
+        data1 = self.data[(self.data[:, 0] < x + self.planeinterval) & (self.data[:, 0] > x - self.planeinterval)]
+        data2 = self.data[(self.data[:, 1] < y + self.planeinterval) & (self.data[:, 1] > y - self.planeinterval)]
+
+        u, v = np.mgrid[0:2 * np.pi:20j, 0:np.pi:10j]
+        x1 = r*np.cos(u) * np.sin(v)
+        y1 = r*np.sin(u) * np.sin(v)
+        z1 = r*np.cos(v)
+        x1 += xs
+        y1 += ys
+        z1 += zs
+
+        X1, Y1, Z1 = x1, y1, z1
+
+        x2 = np.ones((1,len(data1[:,3])))*x
+        X2,Y2= np.meshgrid(x2,data1[:,1])
+        Z2,Y2 = np.meshgrid(data1[:,2],data1[:,1])
+        v2,w2 = np.meshgrid(data1[:,4],data1[:,5])
+        V2 = np.hypot(v2,w2)
+
+
+        x3 = list(data2[:, 0])
+        z3 = list(data2[:,2])
+        u3 = list(data2[:,3])
+        w3 = list(data2[:, 5])
+        deleting = True
+        i = 0
+        while deleting:
+            if x3[i]>x:
+                x3.pop(i)
+                z3.pop(i)
+                u3.pop(i)
+                w3.pop(i)
+
+            else:
+                i += 1
+            if i == len(x3):
+                deleting = False
+        y3 = np.ones((1, len(x3))) * y
+        X3, Y3 = np.meshgrid(x3, y3)
+        Z3, X3 = np.meshgrid(z3, x3)
+        U3, W3 = np.meshgrid(u3,w3)
+        V3 = np.hypot(U3, W3)
+
+        x4 = list(data2[:, 0])
+        z4 = list(data2[:, 2])
+        u4 = list(data2[:, 3])
+        w4 = list(data2[:, 5])
+        deleting = True
+        i = 0
+        while deleting:
+            if x4[i] <= x:
+                x4.pop(i)
+                z4.pop(i)
+                u4.pop(i)
+                w4.pop(i)
+
+            else:
+                i += 1
+            if i == len(x4):
+                deleting = False
+        y4 = np.ones((1, len(x4))) * y
+        X4, Y4 = np.meshgrid(x4, y4)
+        Z4, X4 = np.meshgrid(z4, x4)
+        U4, W4 = np.meshgrid(u4, w4)
+        V4 = np.hypot(U4, W4)
+        a = max(np.amax(V4),np.amax(V3),np.amax(V2))
+        b = min(np.amin(V3),np.amin(V2),np.amin(V4))
+
+        norm = mpl.colors.Normalize(vmin=b, vmax=a)
+        csfont = {'fontname': self.font}
+        plt.title(self.title, fontsize=self.fontsize, **csfont)
+        plt.xlabel(self.xtitle, fontsize=self.fontsize, **csfont)
+        plt.ylabel(self.ytitle, fontsize=self.fontsize, **csfont)
+        ax.plot_surface(X1, Y1, Z1, color=colorsphere, shade=False)
+        ax.plot_surface(X2, Y2, Z2,facecolors=plt.cm.gist_rainbow(norm(V2)), shade=False)
+        ax.plot_surface(X3, Y3, Z3, facecolors=plt.cm.gist_rainbow(norm(V3)), shade=False)
+        ax.plot_surface(X4, Y4, Z4, facecolors=plt.cm.gist_rainbow(norm(V4)), shade=False)
+
+        m = mpl.cm.ScalarMappable(cmap='gist_rainbow', norm=norm)
+        m.set_array([])
+        fig.colorbar(m)
+        plt.show()
+
+
+
 
         ## !!!THOUGHT!!! ==> plotting the velocity field in three dimensions but only on the surface of tthe sphere
 
@@ -423,4 +516,5 @@ matrix.planeinterval = 10.1
 # matrix.streamsplaneyz(5,density=2)
 # matrix.vectorplaneyz(5)
 # matrix.intersectingplanes(0,5)
-matrix.sphere_plane(5,colorsphere='cyan')
+# matrix.sphere_plane(5,colorsphere='cyan')
+matrix.twoplanes_Sphere(0,5,5,5,5,1,colorsphere='black')
