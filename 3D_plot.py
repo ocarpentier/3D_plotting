@@ -440,8 +440,8 @@ numpy array with six columns with no strings in it(first entry= x-location, seco
 
 fig1 = plotter(matrix,'Test Title','x-axis','y-axis',colormp='gist_ncar',fontsize=11,font='Comic Sans MS',couleur=True,grid=None,ticks=None)
 fig2 = plotter(matrix,'Test Title','x-axis','y-axis',colormp='hsv',fontsize=15,font=None,couleur=False,grid=True,ticks=True)
-fig1.planeinterval = 6                    # Most likely there wont be many points having exactly the same value hence all the points lying in the interval will be projected on the plane this is how its adjusted
-fig2.planeinterval = 6                    # same
+fig1.planeinterval = 10.1                 # Most likely there wont be many points having exactly the same value hence all the points lying in the interval will be projected on the plane this is how its adjusted
+fig2.planeinterval = 10.1                 # same
 
 fig1.vectorplanexz(5)                   # does not look good for a lot of datapoints
 fig1.streamsplanexz(5,density=3)        # density is an optional argument
