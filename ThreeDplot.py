@@ -7,10 +7,9 @@ from matplotlib import rc
 
 x = np.linspace(0,10,50)
 y = np.linspace(0,10,50)
-x = np.sin(x)
 z = np.linspace(0,10,50)
 u = np.sin(x)
-v = np.cos(x)
+v = np.sin(x)
 w = np.sin(x)
 matrix = np.zeros((len(x),6))
 for i in range(len(x)):
@@ -301,7 +300,11 @@ class plotter:
 
         plt.show()
         #-----------------------------------------
-    def intersectingplanes(self, x, y):
+    def intersectingplanesxy(self, x, y,totalv=None):
+        if totalv is None:
+            totalv = True
+        else:
+            totalv = totalv
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         data1 = self.data[(self.data[:, 0] < x + self.planeinterval) & (self.data[:, 0] > x - self.planeinterval)]
@@ -311,12 +314,17 @@ class plotter:
         X1, Y1 = np.meshgrid(x1, data1[:, 1])
         Z1, Y1 = np.meshgrid(data1[:, 2], data1[:, 1])
         v1, w1 = np.meshgrid(data1[:, 4], data1[:, 5])
-        V1 = np.hypot(v1, w1)
+        u1,v1  = np.meshgrid(data1[:, 3], data1[:, 4])
+        if totalv :
+            Ve1 = np.hypot(np.hypot(v1, w1),u1)
+        else:
+            Ve1 = np.hypot(v1, w1)
 
 
         x2 = list(data2[:, 0])
         z2 = list(data2[:, 2])
         u2 = list(data2[:, 3])
+        v2 = list(data2[:, 4])
         w2 = list(data2[:, 5])
         deleting = True
         i = 0
@@ -326,6 +334,7 @@ class plotter:
                 x2.pop(i)
                 z2.pop(i)
                 u2.pop(i)
+                v2.pop(i)
                 w2.pop(i)
                 passing = True
             else:
@@ -336,20 +345,26 @@ class plotter:
         X2, Y2 = np.meshgrid(x2, y2)
         Z2, X2 = np.meshgrid(z2, x2)
         U2, W2 = np.meshgrid(u2, w2)
-        V2 = np.hypot(U2, W2)
+        U2, V2 = np.meshgrid(u2, v2)
+
+        if totalv:
+            Ve2 = np.hypot(np.hypot(U2, W2),V2)
+        else:
+            Ve2 = np.hypot(U2, W2)
 
         x3 = list(data2[:, 0])
         z3 = list(data2[:, 2])
         u3 = list(data2[:, 3])
+        v3 = list(data2[:, 4])
         w3 = list(data2[:, 5])
         deleting = True
         i = 0
         while deleting and passing:
-            print('check')
             if x3[i] <= x:
                 x3.pop(i)
                 z3.pop(i)
                 u3.pop(i)
+                v3.pop(i)
                 w3.pop(i)
 
             else:
@@ -361,17 +376,213 @@ class plotter:
             X3, Y3 = np.meshgrid(x3, y3)
             Z3, X3 = np.meshgrid(z3, x3)
             U3, W3 = np.meshgrid(u3, w3)
-            V3 = np.hypot(U3, W3)
-            a = max(np.amax(V3), np.amax(V2), np.amax(V1))
-            b = min(np.amin(V3), np.amin(V2), np.amin(V1))
+            U3, V3 = np.meshgrid(u3, v3)
+            if totalv:
+                Ve3 = np.hypot(np.hypot(U3, W3),V3)
+            else:
+                Ve3 = np.hypot(U3, W3)
+            a = max(np.amax(Ve3), np.amax(Ve2), np.amax(Ve1))
+            b = min(np.amin(Ve3), np.amin(Ve2), np.amin(Ve1))
         else:
-            a = max( np.amax(V2), np.amax(V1))
-            b = min(np.amin(V2), np.amin(V1))
+            a = max( np.amax(Ve2), np.amax(Ve1))
+            b = min(np.amin(Ve2), np.amin(Ve1))
         norm = mpl.colors.Normalize(vmin=b, vmax=a)
-        ax.plot_surface(X1, Y1, Z1, facecolors=plt.cm.gist_rainbow(norm(V1)), shade=False)
-        ax.plot_surface(X2, Y2, Z2, facecolors=plt.cm.gist_rainbow(norm(V2)), shade=False)
+        ax.plot_surface(X1, Y1, Z1, facecolors=plt.cm.prism(norm(Ve1)), shade=False)
+        ax.plot_surface(X2, Y2, Z2, facecolors=plt.cm.prism(norm(Ve2)), shade=False)
         if passing:
-         ax.plot_surface(X3, Y3, Z3, facecolors=plt.cm.gist_rainbow(norm(V3)), shade=False)
+         ax.plot_surface(X3, Y3, Z3, facecolors=plt.cm.prism(norm(Ve3)), shade=False)
+        m = mpl.cm.ScalarMappable(cmap='gist_rainbow', norm=norm)
+        m.set_array([])
+        fig.colorbar(m)
+        plt.show()
+
+    def intersectingplanesyz(self, z, y, totalv=None):
+        if totalv is None:
+            totalv = True
+        else:
+            totalv = totalv
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        data1 = self.data[(self.data[:, 0] < z + self.planeinterval) & (self.data[:, 0] > z - self.planeinterval)]
+        data2 = self.data[(self.data[:, 1] < y + self.planeinterval) & (self.data[:, 1] > y - self.planeinterval)]
+
+        z1 = np.ones((1, len(data1[:, 3]))) * z
+        Z1, Y1 = np.meshgrid(z1, data1[:, 1])
+        X1, Y1 = np.meshgrid(data1[:, 0], data1[:, 1])
+        v1, w1 = np.meshgrid(data1[:, 4], data1[:, 5])
+        u1, v1 = np.meshgrid(data1[:, 3], data1[:, 4])
+        if totalv:
+            Ve1 = np.hypot(np.hypot(v1, w1), u1)
+        else:
+            Ve1 = np.hypot(v1, u1)
+
+        x2 = list(data2[:, 0])
+        z2 = list(data2[:, 2])
+        u2 = list(data2[:, 3])
+        v2 = list(data2[:, 4])
+        w2 = list(data2[:, 5])
+        deleting = True
+        i = 0
+        passing = False
+        while deleting:
+            if x2[i] > x:
+                x2.pop(i)
+                z2.pop(i)
+                u2.pop(i)
+                v2.pop(i)
+                w2.pop(i)
+                passing = True
+            else:
+                i += 1
+            if i == len(x2):
+                deleting = False
+        y2 = np.ones((1, len(x2))) * y
+        X2, Y2 = np.meshgrid(x2, y2)
+        Z2, X2 = np.meshgrid(z2, x2)
+        U2, W2 = np.meshgrid(u2, w2)
+        U2, V2 = np.meshgrid(u2, v2)
+
+        if totalv:
+            Ve2 = np.hypot(np.hypot(U2, W2), V2)
+        else:
+            Ve2 = np.hypot(U2, W2)
+
+        x3 = list(data2[:, 0])
+        z3 = list(data2[:, 2])
+        u3 = list(data2[:, 3])
+        v3 = list(data2[:, 4])
+        w3 = list(data2[:, 5])
+        deleting = True
+        i = 0
+        while deleting and passing:
+            if x3[i] <= x:
+                x3.pop(i)
+                z3.pop(i)
+                u3.pop(i)
+                v3.pop(i)
+                w3.pop(i)
+
+            else:
+                i += 1
+            if i == len(x3):
+                deleting = False
+        if passing:
+            y3 = np.ones((1, len(x3))) * y
+            X3, Y3 = np.meshgrid(x3, y3)
+            Z3, X3 = np.meshgrid(z3, x3)
+            U3, W3 = np.meshgrid(u3, w3)
+            U3, V3 = np.meshgrid(u3, v3)
+            if totalv:
+                Ve3 = np.hypot(np.hypot(U3, W3), V3)
+            else:
+                Ve3 = np.hypot(U3, W3)
+            a = max(np.amax(Ve3), np.amax(Ve2), np.amax(Ve1))
+            b = min(np.amin(Ve3), np.amin(Ve2), np.amin(Ve1))
+        else:
+            a = max(np.amax(Ve2), np.amax(Ve1))
+            b = min(np.amin(Ve2), np.amin(Ve1))
+        norm = mpl.colors.Normalize(vmin=b, vmax=a)
+        ax.plot_surface(X1, Y1, Z1, facecolors=plt.cm.prism(norm(Ve1)), shade=False)
+        ax.plot_surface(X2, Y2, Z2, facecolors=plt.cm.prism(norm(Ve2)), shade=False)
+        if passing:
+            ax.plot_surface(X3, Y3, Z3, facecolors=plt.cm.prism(norm(Ve3)), shade=False)
+        m = mpl.cm.ScalarMappable(cmap='gist_rainbow', norm=norm)
+        m.set_array([])
+        fig.colorbar(m)
+        plt.show()
+
+
+    def intersectingplanesxz(self, x, z,totalv=None):
+        if totalv is None:
+            totalv = True
+        else:
+            totalv = totalv
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        data1 = self.data[(self.data[:, 0] < x + self.planeinterval) & (self.data[:, 0] > x - self.planeinterval)]
+        data2 = self.data[(self.data[:, 2] < z + self.planeinterval) & (self.data[:, 2] > z - self.planeinterval)]
+
+        x1 = np.ones((1, len(data1[:, 3]))) * x
+        X1, Y1 = np.meshgrid(x1, data1[:, 1])
+        Z1, Y1 = np.meshgrid(data1[:, 2], data1[:, 1])
+        v1, w1 = np.meshgrid(data1[:, 4], data1[:, 5])
+        u1,v1  = np.meshgrid(data1[:, 3], data1[:, 4])
+        if totalv :
+            Ve1 = np.hypot(np.hypot(v1, w1),u1)
+        else:
+            Ve1 = np.hypot(v1, w1)
+
+
+        x2 = list(data2[:, 0])
+        y2 = list(data2[:, 1])
+        u2 = list(data2[:, 3])
+        v2 = list(data2[:, 4])
+        w2 = list(data2[:, 5])
+        deleting = True
+        i = 0
+        passing = False
+        while deleting:
+            if x2[i] > x:
+                x2.pop(i)
+                z2.pop(i)
+                u2.pop(i)
+                v2.pop(i)
+                w2.pop(i)
+                passing = True
+            else:
+                i += 1
+            if i == len(x2):
+                deleting = False
+        z2 = np.ones((1, len(x2))) * z
+        X2, Y2 = np.meshgrid(x2, y2)
+        Z2, X2 = np.meshgrid(z2, x2)
+        U2, W2 = np.meshgrid(u2, w2)
+        U2, V2 = np.meshgrid(u2, v2)
+
+        if totalv:
+            Ve2 = np.hypot(np.hypot(U2, W2),V2)
+        else:
+            Ve2 = np.hypot(U2, V2)
+
+        x3 = list(data2[:, 0])
+        y3 = list(data2[:, 1])
+        u3 = list(data2[:, 3])
+        v3 = list(data2[:, 4])
+        w3 = list(data2[:, 5])
+        deleting = True
+        i = 0
+        while deleting and passing:
+            if x3[i] <= x:
+                x3.pop(i)
+                y3.pop(i)
+                u3.pop(i)
+                v3.pop(i)
+                w3.pop(i)
+
+            else:
+                i += 1
+            if i == len(x3):
+                deleting = False
+        if passing:
+            z3 = np.ones((1, len(x3))) * z
+            X3, Y3 = np.meshgrid(x3, y3)
+            Z3, X3 = np.meshgrid(z3, x3)
+            U3, W3 = np.meshgrid(u3, w3)
+            U3, V3 = np.meshgrid(u3, v3)
+            if totalv:
+                Ve3 = np.hypot(np.hypot(U3, W3),V3)
+            else:
+                Ve3 = np.hypot(U3, V3)
+            a = max(np.amax(Ve3), np.amax(Ve2), np.amax(Ve1))
+            b = min(np.amin(Ve3), np.amin(Ve2), np.amin(Ve1))
+        else:
+            a = max( np.amax(Ve2), np.amax(Ve1))
+            b = min(np.amin(Ve2), np.amin(Ve1))
+        norm = mpl.colors.Normalize(vmin=b, vmax=a)
+        ax.plot_surface(X1, Y1, Z1, facecolors=plt.cm.prism(norm(Ve1)), shade=False)
+        ax.plot_surface(X2, Y2, Z2, facecolors=plt.cm.prism(norm(Ve2)), shade=False)
+        if passing:
+         ax.plot_surface(X3, Y3, Z3, facecolors=plt.cm.prism(norm(Ve3)), shade=False)
         m = mpl.cm.ScalarMappable(cmap='gist_rainbow', norm=norm)
         m.set_array([])
         fig.colorbar(m)
@@ -419,8 +630,12 @@ class plotter:
         plt.show()
 
     ## !!!THOUGHT!!! ==> plotting the velocity field in three dimensions but only on the surface of tthe sphere
-
-
+#
+# fig1 = plotter(matrix,'Test Title','x-axis','y-axis',colormp='gist_ncar',fontsize=11,font='Comic Sans MS',couleur=True,grid=None,ticks=None)
+# fig2 = plotter(matrix,'Test Title','x-axis','y-axis',colormp='hsv',fontsize=15,font=None,couleur=False,grid=True,ticks=True)
+# fig1.planeinterval = 10.1                 # Most likely there wont be many points having exactly the same value hence all the points lying in the interval will be projected on the plane this is how its adjusted
+# fig2.planeinterval = 10.1                 # same
+# fig1.intersectingplanes(3,5)
 
 """
 first set a new variable name equal to the class with as first argument the dataset. This should be a 
@@ -438,19 +653,22 @@ numpy array with six columns with no strings in it(first entry= x-location, seco
   if you'd like other plotting methods or change certain things you can always ask me(= Oscar).
 """
 
-fig1 = plotter(matrix,'Test Title','x-axis','y-axis',colormp='gist_ncar',fontsize=11,font='Comic Sans MS',couleur=True,grid=None,ticks=None)
-fig2 = plotter(matrix,'Test Title','x-axis','y-axis',colormp='hsv',fontsize=15,font=None,couleur=False,grid=True,ticks=True)
-fig1.planeinterval = 10.1                 # Most likely there wont be many points having exactly the same value hence all the points lying in the interval will be projected on the plane this is how its adjusted
-fig2.planeinterval = 10.1                 # same
+# fig1 = plotter(matrix,'Test Title','x-axis','y-axis',colormp='gist_ncar',fontsize=11,font='Comic Sans MS',couleur=True,grid=None,ticks=None)
+# fig2 = plotter(matrix,'Test Title','x-axis','y-axis',colormp='hsv',fontsize=15,font=None,couleur=False,grid=True,ticks=True)
+# fig1.planeinterval = 10.1                 # Most likely there wont be many points having exactly the same value hence all the points lying in the interval will be projected on the plane this is how its adjusted
+# fig2.planeinterval = 10.1                 # same
 
-fig1.vectorplanexz(5)                   # does not look good for a lot of datapoints
-fig1.streamsplanexz(5,density=3)        # density is an optional argument
-fig1.streamsplanexy(5,density=0.5)      # you can choose the plane your in
-fig1.intersectingplanes(5,5)            # here i didn't find a way to adapt the color scheme of the heat map with a variable for this you need to enter the class and change it manually or aske me :). this plot looks wrong but i think ith the acquired data it wont be a problem
-fig1.sphere_plane(x=5,xs=2,ys=3,zs=4,r=6,colorsphere='c')    # you can choose the color of your sphere this is also optional. It doesnt look like a sphere but  ithink it is due to the proportions of the axes and it'll probably resolve itself
+# fig1.vectorplanexz(5)                   # does not look good for a lot of datapoints
+# fig1.streamsplanexz(5,density=3)        # density is an optional argument
+# fig1.streamsplanexy(5,density=0.5)      # you can choose the plane your in
+# fig1.intersectingplanesxy(5,5,totalv=None)  # if planevelocity is True then only the colormap will be based on the in plane velocities. Here i didn't find a way to adapt the color scheme of the heat map with a variable for this you need to enter the class and change it manually or aske me :). this plot looks wrong but i think ith the acquired data it wont be a problem
+# fig1.sphere_plane(x=5,xs=2,ys=3,zs=4,r=2,colorsphere='c')    # you can choose the color of your sphere this is also optional. It doesnt look like a sphere but  ithink it is due to the proportions of the axes and it'll probably resolve itself
+# #
+# fig2.vectorplanexz(5)
+# fig2.streamsplanexz(5)
+# fig2.streamsplanexy(5,density=0.5)
+# fig2.intersectingplanes(0,5)
+# fig2.sphere_plane(x=5,xs=2,ys=3,zs=-1,r=2,colorsphere='black')
 
-fig2.vectorplanexz(5)
-fig2.streamsplanexz(5)
-fig2.streamsplanexy(5,density=0.5)
-fig2.intersectingplanes(0,5)
-fig2.sphere_plane(x=5,xs=2,ys=3,zs=-1,r=2,colorsphere='black')
+## !!!Draw it in different order (intersecting planes)!!!
+
